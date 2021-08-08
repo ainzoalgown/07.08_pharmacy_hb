@@ -4,7 +4,7 @@ module.exports.drugsController = {
   getDrugs: async (req, res) => {
     try {
       const list = await Drug.find({}, "-__v").populate("category", "-__v -_id");
-      res.json(list);
+      res.render(main, { list });
     } catch {
       res.json({  error: "Не удалось получить список лекарств"})
     }
