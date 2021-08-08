@@ -1,27 +1,26 @@
-const mongoose = require("mongoose");
+const { Schema, model } = require("mongoose");
 
-const drugSchema = mongoose.Schema({
+const drugSchema = Schema({
   name: {
     required: true,
-    type: String
+    type: String,
   },
   category: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Category"
+    type: Schema.Types.ObjectId,
+    ref: "Category",
   },
   price: {
     required: true,
-    type: Number
+    type: Number,
   },
   needPrescription: {
     required: true,
-    type: Boolean
+    type: Boolean,
+    default: false,
   },
   image: {
-    type: String
-  }
-})
+    type: String,
+  },
+});
 
-const Drug = mongoose.model("Drug", drugSchema);
-
-module.exports = Drug;
+module.exports = model("Drug", drugSchema);

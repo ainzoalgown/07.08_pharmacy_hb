@@ -1,0 +1,26 @@
+<div class="drugs-list">
+  <ul>
+    {{#each drugs}}
+    <li>
+
+      <div class="one-drug">
+
+          <img src=`{{drugs.image}}` alt="Фото Лекарства">
+          <h2 class="drug-name">{{drugs.name}}</h2>
+
+        <small>Категория:
+          {{#if drugs.category}} <!--Если в ключе "категория" что-то есть, то выводит название категории-->
+            <a href="#">{{drugs.category}}</a>
+          {{else}}  <!--Если там ничего нет, то выводит следующую надпись: {...} -->
+            <h4>Не относится ни к одной из существующих категорий</h4>
+          {{/if}}
+        </small>
+
+          <h3>Цена: {{drugs.price}}</h3>
+          <button>Закинуть в корзину</button> <!--bla-bla-bla-->
+      </div>
+
+    </li>
+    {{/each}}
+  </ul>
+</div>
