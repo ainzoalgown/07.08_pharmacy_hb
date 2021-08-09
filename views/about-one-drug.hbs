@@ -1,0 +1,11 @@
+<div class="single-drug-page">
+    <div class="drug-information" style="margin: 10px 0 10px 10px">
+        <img src="{{drug.image}}">
+        <h2>Лекарство: {{drug.name}}</h2>
+        <h3>Категория: <small><a href="/categories/{{drug.category._id}}/drugs">{{drug.category.name}}</a></small></h3>
+        <h5>Цена: {{drug.price}} руб.</h5>
+        <h5>Отпускается без рецепта: {{#if drug.needPrescription}}Да{{else}}Нет{{/if}}</h5>
+        <button>Закинуть в корзину</button> <!--Можно закинуть сколько угодно предметов одного и того же типа-->
+
+    </div>
+</div>

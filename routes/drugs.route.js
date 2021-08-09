@@ -7,8 +7,8 @@ router.post("/admin/drugs", drugsController.addDrug); //Добавление л�
 router.delete("/admin/drugs/:drugId", drugsController.removeDrug); //Удаление лекарства из БД -
 router.patch("/admin/drugs/:drugId", drugsController.editDrug); //Изменение лекарства в БД -
 
-router.get("/clients/categories/:categoryId/drugs", drugsController.getDrugsByCategory); //Получение лекарств по категории
+router.get("/categories/:categoryId/drugs", drugsController.getDrugsByCategory); //Получение лекарств по категории
 router.get("/", drugsController.getDrugs); //Получение всех лекарств
-router.get("/client/drugs/:drugId", drugsController.getDrugById); //Получение лекарства по ID
+router.get("/drugs/:drugId", drugsController.getDrugById); //Получение лекарства по ID
 
 module.exports = router;

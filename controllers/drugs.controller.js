@@ -1,27 +1,30 @@
 const Drug = require("../models/Drug.model");
+const Category = require("../models/Category.model")
 const { extname } = require("path");
 
 module.exports.drugsController = {
   getDrugs: async (req, res) => {
     try {
-      const list = await Drug.find().populate("category", "-_id");
-      res.render(main, { list });
+      const drugs = await Drug.find().populate("category").lean();
+      res.render("all-drugs", { drugs });
     } catch {
       res.json({  error: "Не удалось получить список лекарств"})
     }
   },
   getDrugsByCategory: async (req, res) => {
     try {
-      const list = await Drug.find({ category: req.params.categoryId }).populate("category");
-      res.json(list);
+      const drugs = await Drug.find({ category: req.params.categoryId }).populate("category").lean();
+      const categoryName = drugs[0].category.name;
+
+      res.render("drugs-by-category", { drugs , categoryName});
     } catch {
       res.json({  error: "Не удалось получить список лекарств"})
     }
   },
   getDrugById: async (req, res) => {
     try {
-      const information = await Drug.findById(req.params.drugId).populate("category");
-      res.json(information);
+      const drug = await Drug.findById(req.params.drugId).populate("category").lean();
+      res.render("about-one-drug", { drug });
     } catch {
       res.json({  error: "Не удалось получить список лекарств"})
     }
