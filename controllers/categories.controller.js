@@ -3,7 +3,7 @@ const Category = require("../models/Category.model");
 module.exports.categoriesController = {
   getCategories: async (req, res) => {
     try {
-      const list = await Category.find();
+      const list = await Category.find().lean();
       res.render("layouts/main");
     } catch {
       res.json({ error: "Не удалось получить категории" });

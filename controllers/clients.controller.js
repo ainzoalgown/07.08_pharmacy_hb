@@ -2,7 +2,70 @@ const Client = require("../models/Client.model");
 const Cart = require("../models/Cart.model");
 const Drug = require("../models/Drug.model");
 
+const User = require("../models/test-authorization/User.model"); //Моделька юзера
+const Role = require("../models/test-authorization/Role.model"); //Моделька роли
+const bcrypt = require("bcryptjs"); //библиотека для хэширования пароля
+const { validationResult } = require("express-validator"); //Валидатор ошибок
+const jwt = require("jsonwebtoken"); //Токен для авторизации
+
+global.SECRET_KEY = "SECRET_KEY_RANDOM";
+const generateAccessToken = (id, roles) => { //Функция генерации токена. Передавать можно всё, что должно будет содержаться в токене
+  const payload = { id, roles }
+  //Функция подключения токена, в опциях содержится время сгорания токена, секретный ключ = рандомный ключ
+  return jwt.sign(payload, SECRET_KEY, {expiresIn: "24h"});
+}
+
+module.exports.usersController = {
+  registration: async (req, res) => { //Регистрация
+    try {
+      const errors = validationResult(req); //Проверка на содержание каких-либо ошибок (варианты ошибок указаны в роуте)
+      if (!errors.isEmpty()) res.status(400).json({message: "Ошибка при регистрации", errors})
+
+      const {username, password} = req.body; //Достаём из req.body ключи [username, password]
+      const candidate = await User.findOne({username}); //Проверка на наличие идентичного пользователя
+      if (candidate) res.status(404).json({message: `Пользователь под ником ${username} уже существует!`})
+
+      const hashedPassword = bcrypt.hashSync(password, 7); //Создаём новый, захешированный пароль с помощью библиотеки bcrypt
+      const userRole = await Role.findOne({value: "USER"}); //Задаём изначальную роль при регистрации пользователя
+        //Создаём нового пользователя ---> входные параметры: [username, password]
+      await User.create({username, password: hashedPassword, roles: [userRole.value]}); //Роль создаётся та, что была определена двумя строчками раннее
+      res.send("Пользователь успешно создан");
+    } catch (e) {
+      console.log(e);
+      res.status(400).json({message: "Registration error"})
+    }
+  },
+  login: async (req, res) => { //Авторизация
+    try {
+      const { username, password } = req.body; //Достаём из req.body ключи [username, password]
+
+      const user = await User.findOne({ username }) //Пробуем найти введёный ник в базе. Если он не найден,
+      if (!user) res.status(400).send(`Пользователь ${username} не найден`); //Выводится данное сообщение: {...}
+
+      //Проверка валидности пароля. Т.к пароль у нас захеширован, то вызываем функцию проверки из самой библиотеки
+      const validPassword = bcrypt.compareSync(password, user.password);
+      if(!validPassword) res.status(400).send("Введён неверный пароль :9");
+
+      const token = generateAccessToken(user._id, user.roles); //Генерация токена по ранее созданной функции
+      req.headers.authorization = `Bearer ${token}`;
+      return res.json({token}); //Возвращение ответа в виде токена
+    } catch (e) {
+      console.log(e);
+      res.status(400).json({message: "Login error"})
+    }
+  },
+  getUsers: async (req, res) => { //Получения списка всех юзеров
+    try {
+      const users = await User.find();
+      res.json(users);
+    } catch (e) {
+      res.json(e);
+    }
+  }
+}
+
 module.exports.clientsController = {
+
   addClient: async (req, res) => {
     try {
       const newClient = await Client.create({ name: req.body.name }); //Создаётся новый клиент

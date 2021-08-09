@@ -16,6 +16,7 @@ app.set("view engine", '.hbs');
 mongoose.connect("mongodb+srv://code:code@cluster0.cnyps.mongodb.net/pharmacy_handlebars?retryWrites=true&w=majority", {
   useUnifiedTopology: true,
   useNewUrlParser: true,
+  useCreateIndex: true,
   useFindAndModify: false
 })
 .then( () => app.listen(port, () => console.log("Сервер успешно запущен")));
