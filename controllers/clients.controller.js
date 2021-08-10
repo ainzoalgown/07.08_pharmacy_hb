@@ -6,7 +6,8 @@ const User = require("../models/test-authorization/User.model"); //Модель�
 const Role = require("../models/test-authorization/Role.model"); //Моделька роли
 const bcrypt = require("bcryptjs"); //библиотека для хэширования пароля
 const { validationResult } = require("express-validator"); //Валидатор ошибок
-const jwt = require("jsonwebtoken"); //Токен для авторизации
+const jwt = require("jsonwebtoken");
+const resInit = require('express'); //Токен для авторизации
 
 global.SECRET_KEY = "SECRET_KEY_RANDOM";
 const generateAccessToken = (id, roles) => { //Функция генерации токена. Передавать можно всё, что должно будет содержаться в токене
@@ -29,7 +30,7 @@ module.exports.usersController = {
       const userRole = await Role.findOne({value: "USER"}); //Задаём изначальную роль при регистрации пользователя
         //Создаём нового пользователя ---> входные параметры: [username, password]
       await User.create({username, password: hashedPassword, roles: [userRole.value]}); //Роль создаётся та, что была определена двумя строчками раннее
-      res.send("Пользователь успешно создан");
+      res.redirect("sign-in").send("Пользователь успешно создан!");
     } catch (e) {
       console.log(e);
       res.status(400).json({message: "Registration error"})
@@ -47,8 +48,9 @@ module.exports.usersController = {
       if(!validPassword) res.status(400).send("Введён неверный пароль :9");
 
       const token = generateAccessToken(user._id, user.roles); //Генерация токена по ранее созданной функции
-      req.headers.authorization = `Bearer ${token}`;
-      return res.json({token}); //Возвращение ответа в виде токена
+      res.cookie("token", "Bearer " + token, {httpOnly: true, expires: new Date(Date.now() + 900000)});
+
+      res.redirect("/drugs"); //Возвращение ответа в виде токена
     } catch (e) {
       console.log(e);
       res.status(400).json({message: "Login error"})
@@ -60,6 +62,20 @@ module.exports.usersController = {
       res.json(users);
     } catch (e) {
       res.json(e);
+    }
+  },
+  authorizationPage: async (req, res) => {
+    try {
+      res.render("sign-in")
+    } catch (e) {
+      res.json(e)
+    }
+  },
+  registrationPage: async (req, res) => {
+    try {
+      res.render("sign-up")
+    } catch (e) {
+      res.json(e)
     }
   }
 }
